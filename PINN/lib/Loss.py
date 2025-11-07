@@ -1,6 +1,6 @@
 import torch
 
-def wave_square_loss(prediction, target, c=1.4):
+def wave_square_loss(prediction, target, c=1.4, w_d=1.0, w_ic=1.0, w_bc=1.0):
     """
     Compute the Wave Square Loss between prediction and target.
 
@@ -8,6 +8,9 @@ def wave_square_loss(prediction, target, c=1.4):
         prediction (torch.Tensor): The predicted values.
         target (torch.Tensor): The ground truth values.
         c (float): Wave speed constant.
+        w_d (float): Weight for the domain loss.
+        w_ic (float): Weight for the initial condition loss.
+        w_bc (float): Weight for the boundary condition loss.
 
     Returns:
         float: The computed Wave Square Loss.
@@ -20,4 +23,5 @@ def wave_square_loss(prediction, target, c=1.4):
     IC_loss = torch.mean((prediction[:, 0] - target[:,0])**2+
                          (torch.autograd.grad(prediction, t)[:,0])**2)
     boundary_loss = torch.mean(torch.autograd.grad(prediction, x)**2)
-    return domain_loss + IC_loss + boundary_loss
+    
+    return w_d * domain_loss + w_ic * IC_loss + w_bc * boundary_loss
