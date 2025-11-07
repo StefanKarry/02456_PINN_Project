@@ -14,3 +14,5 @@ def wave_square_loss(prediction, target):
     # Compute the wave square loss
     domain_loss = 
     return domain_loss
+
+print('hello')
