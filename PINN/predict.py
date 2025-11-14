@@ -4,7 +4,7 @@ import torch
 import matplotlib.pyplot as plt
 import os
 
-from lib/model/Simple_net import *
+from lib.model.PINNs import *
 
 
 # Grid for prediction
@@ -17,10 +17,8 @@ X_star = np.array([[x, t] for t in t_star for x in x_star])
 X_star_tensor = torch.tensor(X_star, dtype=torch.float32)
 
 model=PINNModel_Plane()
-#model=SimpleNet  find out what form the model is at/run at
 
-
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 working_dir = os.path.dirname(os.path.abspath(__file__))
 path_weights = os.path.join(working_dir, 'lib/weights/model.pth') # Works dynamically for any of our systems
 
