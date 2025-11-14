@@ -13,18 +13,47 @@ def psi_func(sigma,x0, y0,x,y):
     sigma = 0.2
     return torch.exp(-((x-x0)**2 + (y-y0)**2)/sigma**2)
 
+
+
 #the betas are hyperparameters to be tuned and are not found by the PINN during training naturally
-def loss_pinn_2D(u_hat, c, beta_f=1.0, beta_ic=1.0, beta_bc=1.0,sigma=1, x0=0,y0=0):
+def loss_pinn_2D(u_hat, c, beta_f=1.0, beta_ic=1.0, beta_bc=1.0,sigma=1, x0=0,y0=0,
+                 x_min=-1.0,x_max=1.0,y_min = -1.0, y_max=1.0, t_min=0.0,t_max=2.0,N=[10000,1000,500]):
     
     #during the training loop we call the criterion i.e. loss function and gives it the following inputs:
-        #(outputs, target, c) = (u_hat, exact, c)
+        #(outputs, c) = (u_hat, c)
         
     # ------------------
     # Define points in respetivelly; interior domain, initial t=0 interior domain & boundary domain
     # ------------------
-    X_f= work in progress, se fil på branch main/Clara kaldt 'X_loss_def.py'
-    X_ic=
-    X_bc=
+    N_f,N_ic,N_bc = N  # interior PDE collocation points
+    
+    x_f = (x_max - x_min) * torch.rand(N_f, 1) + x_min
+    y_f = (y_max - y_min) * torch.rand(N_f, 1) + y_min
+    t_f = (t_max - t_min) * torch.rand(N_f, 1) + t_min
+    X_f = torch.cat([x_f, y_f, t_f], dim=1)
+
+    x_ic = (x_max - x_min) * torch.rand(N_ic, 1) + x_min
+    y_ic = (y_max - y_min) * torch.rand(N_ic, 1) + y_min
+    t_ic = torch.zeros(N_ic, 1)  
+    X_ic = torch.cat([x_ic, y_ic, t_ic], dim=1)
+    
+    # Left (x = x_min) and Right (x = x_max) edges
+    N_bc=N_bc_side
+    y_bc_lr = (y_max - y_min) * torch.rand(N_bc_side, 1) + y_min
+    t_bc_lr = (t_max - t_min) * torch.rand(N_bc_side, 1) + t_min
+    x_bc_left = x_min * torch.ones(N_bc_side, 1)
+    x_bc_right = x_max * torch.ones(N_bc_side, 1)
+    X_bc_left = torch.cat([x_bc_left, y_bc_lr, t_bc_lr], dim=1)
+    X_bc_right = torch.cat([x_bc_right, y_bc_lr, t_bc_lr], dim=1)
+    # Bottom (y = y_min) and Top (y = y_max) edges
+    x_bc_bt = (x_max - x_min) * torch.rand(N_bc_side, 1) + x_min
+    t_bc_bt = (t_max - t_min) * torch.rand(N_bc_side, 1) + t_min
+    y_bc_bottom = y_min * torch.ones(N_bc_side, 1)
+    y_bc_top = y_max * torch.ones(N_bc_side, 1)
+    X_bc_bottom = torch.cat([x_bc_bt, y_bc_bottom, t_bc_bt], dim=1)
+    X_bc_top = torch.cat([x_bc_bt, y_bc_top, t_bc_bt], dim=1)
+    # Combine all boundary points
+    X_bc = torch.cat([X_bc_left, X_bc_right, X_bc_bottom, X_bc_top], dim=0)
     
     
     # ------------------

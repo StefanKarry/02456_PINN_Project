@@ -29,13 +29,27 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 epochs = 50
 
 model = PINNModel_Plane().to(device)
-c = 1.4 # wave speed (used in the loss function)
-#x0, y0 = 1.0, 1.0 (initial position of wave)
-#sigma (initial condition wave width)
 criterion = loss_pinn_2D() # Use the custom loss function 
 optimizer = optim.Adam(model.parameters(), lr=1e-4)
-
 summary(model, )(input_size=(2,))
+
+# -------------------
+#PARAMS
+# -------------------
+c = 1.4 # wave speed (used in the loss function)
+#x0, y0 = 1.0, 1.0 (initial position of wave, default in Loss is 0.0, 0.0)
+#sigma (initial condition wave width, default in Loss is 1)
+
+# -------------------
+# Domain params
+# -------------------
+#x_min, x_max = -1.0, 1.0
+#y_min, y_max = -1.0, 1.0
+#t_min, t_max = 0.0, 2.0  # adjust T as needed
+#N=[10000,1000,500]  # Number of points in the 
+
+
+
 
 #### Training loop ####
 elapsed_time = 0.0
