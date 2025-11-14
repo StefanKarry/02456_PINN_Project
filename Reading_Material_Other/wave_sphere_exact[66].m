@@ -160,7 +160,7 @@ if a==b, r = 1; return; end
 r = 1/prod((a+1):b);
 end
 
-function XYZ = sph2cartR(theta, phi, R)
+function XYZ = sph2catR(theta, phi, R)
 %SPH2CARTR  Convert spherical angles (θ,φ) to (x,y,z) on radius R
 x = R .* sin(theta) .* cos(phi);
 y = R .* sin(theta) .* sin(phi);

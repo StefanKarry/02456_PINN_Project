@@ -17,7 +17,7 @@ import torch.optim as optim
 from time import time
 
 from lib.model.model1 import *
-from lib.Loss import *
+from lib.Loss_ninna import *
 from lib.dataset.dataset1 import *
 from lib/Loss_2Dsquare import *
 
