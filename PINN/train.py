@@ -19,7 +19,7 @@ from time import time
 from lib.model.model1 import *
 from lib.Loss import *
 from lib.dataset.dataset1 import *
-
+from lib/Loss_2Dsquare import *
 
 #### Data set ####
 batch_size = 8
@@ -32,7 +32,8 @@ epochs = 50
 
 model = PINNModel().to(device)
 c = 1.4 # wave speed (used in the loss function)
-criterion = wave_square_loss # Use the custom loss function 
+x0, y0 = 0.0, 0.0
+criterion = loss_pinn_2D() # Use the custom loss function 
 optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
 summary(model, )(input_size=(2,))

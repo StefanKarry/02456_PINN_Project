@@ -3,8 +3,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
-model_script=
-from lib/model_script import *
+from lib/model/Simple_net import *
 
 
 # Grid for prediction
