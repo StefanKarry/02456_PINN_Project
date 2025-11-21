@@ -117,4 +117,4 @@ def loss_pinn_2D(u_hat, c, beta_f=1.0, beta_ic=1.0, beta_bc=1.0,sigma=1, x0=0,y0
     # Total loss
     # ------------------
     M_total = beta_f*M_f + beta_ic*M_ic + beta_bc*M_bc
-    return M_total, M_f, M_ic, M_bc
+    return M_total
