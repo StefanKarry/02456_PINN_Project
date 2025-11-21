@@ -1,6 +1,6 @@
 import torch
 
-def wave_square_loss(u_hat, u_true, c=1.4, w_d=1.0, w_ic=1.0, w_bc=1.0):
+def wave_square_loss(prediction, target, c=1.4, w_d=1.0, w_ic=1.0, w_bc=1.0):
     """
     Compute the Wave Square Loss between prediction and target.
 
@@ -15,14 +15,14 @@ def wave_square_loss(u_hat, u_true, c=1.4, w_d=1.0, w_ic=1.0, w_bc=1.0):
     Returns:
         float: The computed Wave Square Loss.
     """
-    x = u_hat[:, 0]
-    t = u_hat[:, 1]
+    x = prediction[:, 0]
+    t = prediction[:, 1]
     # Compute the wave square loss
-    domain_loss = torch.mean((torch.autograd.grad(torch.autograd.grad(u_hat, t), t)- 
-                             c**2*torch.autograd.grad(torch.autograd.grad(u_hat, x), x))**2)
-    IC_loss = torch.mean((x[0] - u_true[0])**2+
+    domain_loss = torch.mean((torch.autograd.grad(torch.autograd.grad(prediction, t), t)- 
+                             c**2*torch.autograd.grad(torch.autograd.grad(prediction, x), x))**2)
+    IC_loss = torch.mean((x[0] - target[0])**2+
                          (torch.autograd.grad(x[0], t))**2)
-    boundary_loss = torch.mean(torch.autograd.grad(u_hat, x)**2)
+    boundary_loss = torch.mean(torch.autograd.grad(prediction, x)**2)
 
     return w_d * domain_loss + w_ic * IC_loss + w_bc * boundary_loss
 
