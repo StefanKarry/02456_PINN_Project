@@ -76,6 +76,8 @@ def exact_solution(x, t):
         
     return u_xt
 
+
+
 # --- VISUALIZATION (Animation) ---
 
 print(f"--- 1D Wave Equation Solver ---")
