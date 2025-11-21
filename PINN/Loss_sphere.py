@@ -1,4 +1,5 @@
 import torch
+from torch.utils.data import Dataset
 import numpy as np
 
 # -------------------
@@ -6,6 +7,42 @@ import numpy as np
 # -------------------
 def psi_sphere(theta, phi, theta0=1.0, phi0=1.0, sigma=0.2):
     return torch.exp(-((theta-theta0)**2 + (phi-phi0)**2)/sigma**2)
+
+
+# -----------------------------
+# Wave dataset for 3D spherical domain
+# -----------------------------
+class WaveDataset(Dataset):
+    def __init__(self, num_samples=1000, train=True,
+                 t_min=0.0, t_max=2.0, theta0=1.0, phi0=1.0, sigma=0.2):
+        super().__init__()
+        self.num_samples = num_samples
+        self.t_min = t_min
+        self.t_max = t_max
+        self.theta0 = theta0
+        self.phi0 = phi0
+        self.sigma = sigma
+
+        # Sample points randomly on the sphere and in time
+        # These are independent of collocation points used in PINN loss
+        self.theta = torch.rand(num_samples, 1) * np.pi        # [0, pi]
+        self.phi = torch.rand(num_samples, 1) * 2*np.pi        # [0, 2pi]
+        self.t = t_min + (t_max - t_min) * torch.rand(num_samples, 1)
+
+        # Compute target u only at t=0 if you want initial condition
+        # For generalization, we can either use u=0 for t>0, or analytical solution if available
+        self.u = psi_sphere(self.theta, self.phi, theta0, phi0, sigma)
+
+    def __len__(self):
+        return self.num_samples
+
+    def __getitem__(self, idx):
+        # Return input (theta, phi, t) and target u
+        input_xyz = torch.cat([self.theta[idx:idx+1], self.phi[idx:idx+1], self.t[idx:idx+1]], dim=1)
+        target_u = self.u[idx:idx+1]
+        return input_xyz, target_u
+
+
 
 # -------------------
 # Spherical PINN Loss
