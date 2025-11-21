@@ -2,8 +2,6 @@ import os
 import numpy as np
 import glob
 import PIL.Image as Image
-
-# pip install torchsummary
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -16,10 +14,11 @@ from torchsummary import summary
 import torch.optim as optim
 from time import time
 
-from lib.model.model1 import *
 from lib.Loss_ninna import *
 from lib.dataset.dataset1 import *
-
+from Loss_2Dsquare import *
+from Loss_sphere import *
+from lib.model.PINNs import *
 
 #### Data set ####
 batch_size = 8
@@ -30,12 +29,42 @@ trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 epochs = 50
 
-model = PINNModel().to(device)
-c = 1.4 # wave speed (used in the loss function)
-criterion = wave_square_loss # Use the custom loss function 
+model = PINNModel_Plane().to(device)
+criterion = loss_pinn_2D() # Use the custom loss function 
+#criterion=loss_pinn_sphere() #Use custom loss function for spherical domain 
 optimizer = optim.Adam(model.parameters(), lr=1e-4)
-
 summary(model, )(input_size=(2,))
+
+# -------------------
+#PARAMS 2D
+# -------------------
+c = 1.4 # wave speed (used in the loss function)
+#x0, y0 = 1.0, 1.0 (initial position of wave, default in Loss is 0.0, 0.0)
+#sigma=2 (initial condition wave width, default in Loss is 1)
+#beta_f=1.0 and beta_ic=1.0: weights of each of the loss terms (hyperparameters to be tuned - i.e. NOT learned during training by default)
+
+# Domain params
+#x_min, x_max = -1.0, 1.0 
+#y_min, y_max = -1.0, 1.0
+#t_min, t_max = 0.0, 2.0  # adjust T as needed (default values are 0.0,2.0)
+#N=[10000,1000,500] (default is [10000,1000,500])  # Number of points in the grid for each coordinate
+
+
+# -------------------
+#PARAMS spherical
+# -------------------
+c = 1.4 # wave speed (used in the loss function)
+#theta0,phi0=5.0,2.0 (initial position of wave, default in Loss is 1.0, 1.0)
+#sigma=5 (initial condition wave width, default in Loss is 0.2)
+#R=3.0 (radius of sphere. Default is 1.0)
+#beta_f=1.0 and beta_ic=1.0: weights of each of the loss terms
+
+# Domain params
+#t_min, t_max = 0.0, 2.0  (default values are 0.0,2.0) # adjust T as needed
+#N=[10000,1000]  (default is [10000,1000]) # Number of points in the grid for each coordinate
+
+
+
 
 #### Training loop ####
 elapsed_time = 0.0
@@ -47,7 +76,7 @@ for epoch in range(epochs):
 
         optimizer.zero_grad()
         outputs = model(inputs)
-        loss = criterion(outputs, target, c)
+        loss = criterion(outputs, c)
         loss.backward()
         optimizer.step()
         epoch_loss += loss.item()
