@@ -14,9 +14,9 @@ from torchsummary import summary
 import torch.optim as optim
 from time import time
 
-from lib.Loss_ninna import *
+from PINN.lib.loss.Loss_ninna import *
 from lib.dataset.dataset1 import *
-from Loss_2Dsquare import *
+from PINN.lib.loss.Loss_2Dsquare import *
 from Loss_sphere import *
 from lib.model.PINNs import *
 

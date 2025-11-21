@@ -87,30 +87,29 @@ X_Grid, T_Grid = np.meshgrid(x_vals, t_vals)
 
 print("Computing solution grid...")
 U_Grid = get_solution_grid(X_Grid, T_Grid)
-print(U_Grid)
 # 2. Create the Plot
 print("Plotting...")
-fig, ax = plt.subplots(figsize=(8, 6))
+# fig, ax = plt.subplots(figsize=(8, 6))
 
-# pcolormesh creates the heatmap
-# vmin/vmax center the colormap if needed, or let it scale auto
-# 'shading="auto"' ensures correct grid alignment
-cplot = ax.pcolormesh(X_Grid, T_Grid, U_Grid, cmap='viridis', shading='auto')
+# # pcolormesh creates the heatmap
+# # vmin/vmax center the colormap if needed, or let it scale auto
+# # 'shading="auto"' ensures correct grid alignment
+# cplot = ax.pcolormesh(X_Grid, T_Grid, U_Grid, cmap='viridis', shading='auto')
 
-# 3. Style to match your image
-ax.set_xlim(DOMAIN_START, DOMAIN_END)
-ax.set_ylim(0, T_MAX_PLOT)
-ax.set_xlabel("Position ($x$)")
-ax.set_ylabel("Time ($t$)")
-ax.set_title("Exact Solution $u(x,t)$ Space-Time Heatmap")
+# # 3. Style to match your image
+# ax.set_xlim(DOMAIN_START, DOMAIN_END)
+# ax.set_ylim(0, T_MAX_PLOT)
+# ax.set_xlabel("Position ($x$)")
+# ax.set_ylabel("Time ($t$)")
+# ax.set_title("Exact Solution $u(x,t)$ Space-Time Heatmap")
 
-# Remove standard spines to match the 'clean' look of the provided image if desired
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
+# # Remove standard spines to match the 'clean' look of the provided image if desired
+# ax.spines['top'].set_visible(False)
+# ax.spines['right'].set_visible(False)
 
-# Add a colorbar to show amplitude
-cbar = plt.colorbar(cplot, ax=ax)
-cbar.set_label("Displacement $u$")
+# # Add a colorbar to show amplitude
+# cbar = plt.colorbar(cplot, ax=ax)
+# cbar.set_label("Displacement $u$")
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
