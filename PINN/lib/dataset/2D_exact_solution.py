@@ -69,28 +69,61 @@ def wave_equation_sol_1D(x, t, c = 1.0):
     '''
 
     return np.sin(np.pi * x) * np.cos(c * np.pi * t)
+
+def WEQ_2D_initial_condition(x, y):
+    # generate wave solution for a gaussian pulse at some intitial time and place
+    return np.exp(-((x - 1)**2 + (y - 1)**2))
+
+def WEQ_2D_Propagation(x, y, t, c=1.0):
+    '''
+    Function for computing the exact solution of the 2D wave equation at given points (x, y) and time t.
+    It solve the IVP on the domain x, y \in [-3, 3] x t \in [0, T] with initial conditions u(x, y, 0) = exp(-((x-1)^2 + (y-1)^2)) and u_t(x, y, 0) = 0.
+    It satisfies the homogeneous Neumann boundary conditions at the boundaries. (du/dn = 0)
+
+
+    Args:
+        x: np.ndarray x-coordinates of the points.
+        y: np.ndarray y-coordinates of the points.
+        t: float Time at which to evaluate the solution.
+        c: float Wave speed (default is 1.0).
+
     
+    Returns:
+        np.ndarray The exact solution evaluated at the given points and time.
+    '''
+
+    
+    return WEQ_2D_initial_condition(x, y) * np.cos(c * np.pi * t)
+
+
 
 
 # Example usage and visualization
 if __name__ == "__main__":
     # Create a grid of points
-    x = np.linspace(-1, 1, 25)
-    y = np.linspace(-1, 1, 25)
+    x = np.linspace(-3, 3, 150)
+    y = np.linspace(-3, 3, 150)
+    #y = np.ones_like(x)  # For 2D wave along x-axis only
     X, Y = np.meshgrid(x, y)
-    
-    # Generate a animation of the wave propagation over time
-    for t in np.linspace(0, 2, 100):
-        # Compute the exact solution
-        Z = exact_solution_2D_wConstraints(X, Y, t)
 
-        # Plot the solution
-        plt.clf()
-        plt.contourf(X, Y, Z, levels=50, cmap='viridis')
-        plt.colorbar(label='Wave Amplitude')
-        plt.title(f'2D Wave Equation Solution at t={t:.2f}')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.pause(0.1)
+    ax = plt.axes(projection='3d')
+
+
+    Zs = []
+    for t in np.linspace(0, 2, 100):
+        ax.cla()
+        Z = WEQ_2D_initial_condition(X, Y) * np.cos(np.pi * t)  # Example time evolution
+        Zs = np.array(Z)
+        ax.contourf(X, Y, Zs, zdir='z', offset=-1, cmap='viridis', alpha=0.5)
+        ax.plot_surface(X, Y, Zs, cmap='viridis')
+        ax.set_title(f'Exact Solution of 2D Wave Equation at t={t:.2f}')
+        ax.set_xlabel('X-axis')
+        ax.set_ylabel('Y-axis')
+        ax.set_zlabel('u(x,y,t)')
+        ax.set_zlim(-1, 1)
+        ax.set_xlim(-5, 5)
+        ax.set_ylim(-5, 5)
+
+        plt.pause(0.01)
     
     plt.show()

@@ -3,52 +3,75 @@ from scipy.integrate import quad
 import matplotlib.pyplot as plt
 
 # --- PARAMETERS ---
+
 WAVE_SPEED = 1.4       # c
 DOMAIN_START = -1.0
 DOMAIN_END = 1.0
 N_TERMS = 50           # Fourier series truncation
-T_MAX_PLOT = 1.0       # Max time for the y-axis
-X_CENTER = 1         # x_0
-SIGMA = 0.2            # sigma
+T_MAX_PLOT = 1.0   # Max time for the y-axis
+
+# --- SOURCE 1 ---     
+X_CENTER_S1 = 0.5         # x_0
+SIGMA_S1 = 0.2            # sigma
+
+# --- SOURCE 2 ---
+X_CENTER_S2 = 0 
+SIGMA_S2 = 0.2
+
+SOURCES = 1 # Number of sources to include in the initial condition
 
 # --- PHYSICS & SOLUTION LOGIC (Same as before) ---
-def initial_displacement(x):
-    return np.exp(-((x - X_CENTER) / SIGMA)**2)
+def initial_displacement(x, sources = 1):
+    # Calculate Pulse 1
+    psi_1 = np.exp(-((x - X_CENTER_S1) / SIGMA_S1)**2)
 
-def calculate_coefficients():
-    # A0
-    a0, _ = quad(initial_displacement, DOMAIN_START, DOMAIN_END)
-    # a0 *= 0.5
+    if sources == 1:
+        return psi_1
+
+    else:
+    # Calculate Pulse 2
+        psi_2 = np.exp(-((x - X_CENTER_S2) / SIGMA_S2)**2)
+        # Linearity: The total displacement is just the sum
+        return psi_1 + psi_2
+
+DOMAIN_LENGTH = DOMAIN_END - DOMAIN_START # Equals 2.0
+
+def calculate_coefficients(sources = SOURCES):
+    # A0 (Normalized by domain length)
+    a0, _ = quad(lambda x: initial_displacement(x, sources), DOMAIN_START, DOMAIN_END)
+    a0 = a0 / DOMAIN_LENGTH  # Important normalization for A0
     
     coeffs = [a0]
+    
     # An for n=1..N
     for n in range(1, N_TERMS + 1):
         def integrand(x):
-            return initial_displacement(x) * np.cos(n * np.pi * x)
+            # CORRECTION HERE: Use (x - start) / length
+            basis = np.cos(n * np.pi * (x - DOMAIN_START) / DOMAIN_LENGTH)
+            return initial_displacement(x, sources) * basis
+            
         an, _ = quad(integrand, DOMAIN_START, DOMAIN_END)
-        coeffs.append(an)
+        # Standard Fourier Cosine normalization is 2/L
+        coeffs.append(an * (2.0 / DOMAIN_LENGTH)) 
+        
     return coeffs
 
 # Pre-calculate coefficients
 print("Calculating Fourier coefficients...")
-A_COEFFICIENTS = calculate_coefficients()
+A_COEFFICIENTS = calculate_coefficients(sources=SOURCES)
 
 def get_solution_grid(x_array, t_array):
-    """
-    Calculates u(x,t) for 2D grids of x and t using the series solution.
-    """
-    # Initialize with A0 term
     u_grid = np.full_like(x_array, A_COEFFICIENTS[0])
-    
-    # Add series terms
-    # Using broadcasting for efficiency: 
-    # t_array varies along axis 0, x_array along axis 1
+
     for n in range(1, N_TERMS + 1):
         An = A_COEFFICIENTS[n]
-        # cos(c * n * pi * t)
-        time_part = np.cos(WAVE_SPEED * n * np.pi * t_array)
-        # cos(n * pi * x)
-        space_part = np.cos(n * np.pi * x_array)
+        
+        # CORRECTION HERE: Time freq must also match the length scale
+        # omega_n = c * n * pi / L
+        time_part = np.cos(WAVE_SPEED * n * np.pi * t_array / DOMAIN_LENGTH)
+        
+        # CORRECTION HERE: Space basis must match the integration basis
+        space_part = np.cos(n * np.pi * (x_array - DOMAIN_START) / DOMAIN_LENGTH)
         
         u_grid += An * time_part * space_part
         
