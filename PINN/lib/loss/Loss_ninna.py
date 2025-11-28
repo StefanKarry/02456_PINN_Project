@@ -10,7 +10,7 @@ def compute_grad(u, x):
     return torch.autograd.grad(u, x, grad_outputs=torch.ones_like(u), create_graph=True)[0]
 
 #Markus
-def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b: torch.Tensor, t_b: torch.Tensor, x_0: torch.Tensor, t_0: torch.Tensor, u_0_target: torch.Tensor, c=1.4, beta_f=1.0, beta_ic=1.0):
+def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b: torch.Tensor, t_b: torch.Tensor, x_0: torch.Tensor, t_0: torch.Tensor, u_0_target: torch.Tensor, c=1.4, beta_f=1.0, beta_ic=1.0, beta_b=1.0):
     """
     Compute the Wave Loss for 2D wave equation.
 
@@ -55,7 +55,7 @@ def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b: torch.Tensor, 
     loss_ic_vel = torch.mean(u_initial_t_deriv**2) #MSE of initial velocity condition
 
     # Total loss
-    return beta_f * loss_f + beta_ic * (loss_ic_pos + loss_ic_vel) + loss_b
+    return beta_f * loss_f + beta_ic * (loss_ic_pos + loss_ic_vel) + beta_b*loss_b
 
 
 

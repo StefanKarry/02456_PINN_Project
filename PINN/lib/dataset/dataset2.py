@@ -6,16 +6,21 @@ x_min, x_max = -1.0, 1.0
 t_min, t_max = 0.0, 1.0 # Let's assume max time is 1 second
 
 # Number of points
-N_f = 2000 # Interior physics points
-N_b = 100  # Boundary points (per side)
-N_0 = 100  # Initial points
+N_f = 4000 # Interior physics points
+N_b = 250  # Boundary points (per side)
+N_0 = 250  # Initial points
 
-def create_training_data():
+def create_training_data(x_min=x_min, x_max=x_max, t_min=t_min, t_max=t_max, N_f=N_f, N_b=N_b, N_0=N_0):
     """
     Create training data for the PINN model solving the 1D wave equation.
     This includes interior points for the PDE residual, boundary points for Neumann BCs,
     and initial condition points.
-    
+    :Parameters:
+    - x_min, x_max: Spatial domain bounds
+    - t_min, t_max: Temporal domain bounds
+    - N_f: Number of interior points
+    - N_b: Number of boundary points (per side)
+    - N_0: Number of initial condition points
     :Returns:
     - X_f: Interior points (x, t) for PDE residual
     - X_b_left: Boundary points at left edge (x=-1, t) for Neumann BC

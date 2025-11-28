@@ -29,9 +29,10 @@ trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 epochs = 50
 
-model = PINNModel_Plane().to(device)
-criterion = loss_pinn_2D() # Use the custom loss function 
-#criterion=loss_pinn_sphere() #Use custom loss function for spherical domain 
+#model = PINNModel_Plane().to(device)
+#criterion = loss_pinn_2D() # Use the custom loss function 
+model=PINNModel_Sphere().to(device)
+criterion=loss_pinn_sphere() 
 optimizer = optim.Adam(model.parameters(), lr=1e-4)
 summary(model, )(input_size=(2,))
 
@@ -66,27 +67,39 @@ c = 1.4 # wave speed (used in the loss function)
 
 
 
-#### Training loop ####
-elapsed_time = 0.0
-for epoch in range(epochs):
-    epoch_loss = 0.0
-    start_time = time()
-    for i, (inputs, target) in enumerate(trainloader):
-        inputs, target = inputs.to(device), target.to(device)
-
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, c)
-        loss.backward()
-        optimizer.step()
-        epoch_loss += loss.item()
-
-    elapsed_time += time() - start_time
-    print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss/len(trainloader):.4f}, Time: {elapsed_time:.2f}s")
-
-#### Save model parameters ####
+#folder for logs 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_dir = os.path.join(current_dir, 'lib/weights')
+log_dir = os.path.join(current_dir, 'lib/logs')
+os.makedirs(log_dir, exist_ok=True)
+log_file = os.path.join(log_dir, 'training_loss.txt')
+
+
+
+#### Training loop ####
+with open(log_file, 'w') as f:
+    elapsed_time = 0.0
+    for epoch in range(epochs):
+        epoch_loss = 0.0
+        start_time = time()
+        for i, (inputs, target) in enumerate(trainloader):
+            inputs, target = inputs.to(device), target.to(device)
+
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, c)
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
+
+        elapsed_time += time() - start_time
+        print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss/len(trainloader):.4f}, Time: {elapsed_time:.2f}s")
+        
+        # write to our training loss log txt file
+        f.write(f"{epoch+1},{epoch_loss},{elapsed_time:.2f}\n")
+        f.flush()  # make sure that we're writing to disk every epoch
+
+#### Save model parameters ####
 save_path = os.path.join(model_dir, f'{model.__class__.__name__}.pth')
 
 torch.save(model.state_dict(), save_path)
