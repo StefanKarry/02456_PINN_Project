@@ -38,19 +38,11 @@ T_MAX_PLOT = 1.0
 WAVE_SPEED = 1.2
 N_TERMS = 100  # Number of Fourier terms to use
 
+# Data generation. Sliced during training for causal training
 X_f, X_b, X_0 = create_training_data(x_min=DOMAIN_START, x_max=DOMAIN_END, t_min=0.0, t_max=T_MAX_PLOT, N_f=5000*10, N_b=500*10, N_0=500*10)
-
-#Creating data slices for training. Covers different areas of the domain.
-
-x_f, t_f = X_f[:, 0:1], X_f[:, 1:2]
-x_b, t_b = X_b[:, 0:1], X_b[:, 1:2]
-x_0, t_0 = X_0[:, 0:1], X_0[:, 1:2]
-
-
 
 u_0_target = torch.tensor(initial_displacement(X_0[:, 0:1].detach().numpy()), dtype=torch.float32)
 
-quit()
 
 #### Training setup ####
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -60,19 +52,33 @@ epochs = 10_000
 model = PINN_Model_2D().to(device)
 criterion = waveLoss_2D # Use the custom loss function 
 #criterion=loss_pinn_sphere() #Use custom loss function for spherical domain 
-optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
+# optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
+optimizer = optim.SGD(model.parameters(), lr = 1e-3, momentum = 0.9, weight_decay = 1e-5)
 
 loss_history = []
 
 #### Training loop ####
 
-c = 0
+counter = 0 #Used for dynamic data selection
 
 elapsed_time = 0.0
-for i in range(epochs):
+for epoch in range(epochs):
     start_time = time()
     model.train()
 
+    if (epoch) % ((epochs) // 10) == 0:
+        print(f"Epoch {epoch}/{epochs}")
+        counter += 1
+
+        num_f = int(5000 * 10 * (counter / 10)) # Dynamically increase data points
+        num_b = int(500 * 10 * (counter / 10))
+        num_0 = int(500 * 10 * (counter / 10))
+
+        x_f, t_f = X_f[0:num_f, 0:1], X_f[0:num_f, 1:2]
+        x_b, t_b = X_b[0:num_b, 0:1], X_b[0:num_b, 1:2]
+        x_0, t_0 = X_0[0:num_0, 0:1], X_0[0:num_0, 1:2]
+        u_0_target = torch.tensor(initial_displacement(x_0.detach().numpy()), dtype=torch.float32)
+        
     optimizer.zero_grad()
 
     loss = criterion(model, x_f.to(device), t_f.to(device), x_b.to(device), t_b.to(device), x_0.to(device), t_0.to(device), u_0_target.to(device), c=WAVE_SPEED, beta_f=1.2, beta_ic=1.3, beta_b=1.3)
@@ -82,8 +88,8 @@ for i in range(epochs):
     epoch_loss = loss.item()
     loss_history.append(epoch_loss)
     elapsed_time += time() - start_time
-    if (i+1) % 100 == 0 or i == 0:
-        print(f"Epoch [{i+1}/{epochs}], Loss: {epoch_loss:.4f}, Time: {elapsed_time:.2f}s")
+    if (epoch+1) % 100 == 0 or epoch == 0:
+        print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss:.4f}, Time: {elapsed_time:.2f}s")
 
 
 # Evaluating performance
