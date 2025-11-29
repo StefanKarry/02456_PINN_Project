@@ -72,10 +72,10 @@ class PINNModel_Sphere(nn.Module):
 class PINN_Model_2D(nn.Module):
     def __init__(self):
         super(PINN_Model_2D, self).__init__()
-        self.layer1 = nn.Linear(2, 32) # input layer containing x, t
-        self.layer2 = nn.Linear(32, 32)
-        self.layer3 = nn.Linear(32, 32) 
-        self.layer4 = nn.Linear(32, 1) # output layer containing u(x, t)
+        self.layer1 = nn.Linear(2, 64) # input layer containing x, t
+        self.layer2 = nn.Linear(64, 64)
+        self.layer3 = nn.Linear(64, 64) 
+        self.layer4 = nn.Linear(64, 1) # output layer containing u(x, t)
         
     def forward(self, x, t):
         inputs = torch.cat([x, t], axis=1)
@@ -84,5 +84,3 @@ class PINN_Model_2D(nn.Module):
         x = torch.tanh(self.layer3(x))
         x = self.layer4(x)
         return x
-
-

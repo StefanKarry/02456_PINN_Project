@@ -1,3 +1,4 @@
+from turtle import width
 import torch
 import numpy as np
 
@@ -10,7 +11,7 @@ N_f = 4000 # Interior physics points
 N_b = 250  # Boundary points (per side)
 N_0 = 250  # Initial points
 
-def create_training_data(x_min=x_min, x_max=x_max, t_min=t_min, t_max=t_max, N_f=N_f, N_b=N_b, N_0=N_0):
+def create_training_data(x_min=x_min, x_max=x_max, t_min=t_min, t_max=t_max, N_f=N_f, N_b=N_b, N_0=N_0, sources = None, centers: list = None, sigma = None):
     """
     Create training data for the PINN model solving the 1D wave equation.
     This includes interior points for the PDE residual, boundary points for Neumann BCs,
@@ -32,27 +33,74 @@ def create_training_data(x_min=x_min, x_max=x_max, t_min=t_min, t_max=t_max, N_f
     # x in [-1, 1], t in [0, 1]
     x_f = (x_max - x_min) * torch.rand(N_f, 1) + x_min
     t_f = (t_max - t_min) * torch.rand(N_f, 1) + t_min
-    # Combine them into one tensor requiring gradients
-    X_f = torch.cat([x_f, t_f], dim=1).requires_grad_(True)
 
-    # --- 2. Boundary Points (Neumann) ---
-    # Left Edge: x = -1, t is random
+    # Combine them into one tensor requiring gradients
+    X_f = torch.cat([x_f, t_f], dim=1)
+    
+    #Sort based on time for causal training
+    sorted_indices = torch.argsort(X_f[:, 1])
+    X_f = X_f[sorted_indices].requires_grad_(True)
+
+
+# --- 2. Boundary Points (Reflective / Neumann) ---
+    # UNCOMMENT THIS BLOCK (and comment out the Periodic block)
+    
+    # Left Edge: x = -1
     x_b_left = torch.ones(N_b, 1) * x_min
     t_b_left = (t_max - t_min) * torch.rand(N_b, 1) + t_min
-    X_b_left = torch.cat([x_b_left, t_b_left], dim=1).requires_grad_(True)
+    X_b_left = torch.cat([x_b_left, t_b_left], dim=1)
 
-    # Right Edge: x = 1, t is random
+    # Sort based on time for causal training
+    sorted_indices_left = torch.argsort(X_b_left[:, 1])
+    X_b_left = X_b_left[sorted_indices_left].requires_grad_(True)
+
+    # Right Edge: x = 1
     x_b_right = torch.ones(N_b, 1) * x_max
     t_b_right = (t_max - t_min) * torch.rand(N_b, 1) + t_min
-    X_b_right = torch.cat([x_b_right, t_b_right], dim=1).requires_grad_(True)
+    X_b_right = torch.cat([x_b_right, t_b_right], dim=1)
 
-    X_b = torch.cat([X_b_left, X_b_right], dim=0).requires_grad_(True)
-
+    # Sort based on time for causal training
+    sorted_indices_right = torch.argsort(X_b_right[:, 1])
+    X_b_right = X_b_right[sorted_indices_right].requires_grad_(True)
 
     # --- 3. Initial Condition Points ---
     # t = 0, x is random
-    x_0 = (x_max - x_min) * torch.rand(N_0, 1) + x_min
-    t_0 = torch.zeros(N_0, 1)
-    X_0 = torch.cat([x_0, t_0], dim=1).requires_grad_(True)
+    if (len(centers) < 2) or (sources is None or 1): #By default use single source
+        x_0 = (x_max - x_min) * torch.rand(N_0, 1) + x_min
+        t_0 = torch.zeros(N_0, 1)
+        X_0 = torch.cat([x_0, t_0], dim=1)
 
-    return X_f, X_b, X_0
+        # Sort based on time for causal training
+        sorted_indices_0 = torch.argsort(X_0[:, 1])
+        X_0 = X_0[sorted_indices_0].requires_grad_(True)
+
+    else:            
+        center_s1 = sources[0]
+        center_s2 = sources[1]   # Location of the second source
+        sigma = 0.2       # Area around the source to sample densely
+        
+        n_source = N_0 // 3  # 1/3rd of points for Source 1
+        n_source2 = N_0 // 3 # 1/3rd of points for Source 2
+        n_bg = N_0 - n_source - n_source2 # Remaining for background
+        
+        # 1. Sample densely around Source 1
+        # Range: [center_s1 - sigma, center_s1 + sigma]
+        x_0_s1 = (2 * sigma) * torch.rand(n_source, 1) + (center_s1 - sigma)
+        
+        # 2. Sample densely around Source 2
+        # Range: [center_s2 - sigma, center_s2 + sigma]
+        x_0_s2 = (2 * sigma) * torch.rand(n_source2, 1) + (center_s2 - sigma)
+        
+        # 3. Sample the rest of the domain (Background) to ensure it stays flat
+        x_0_bg = (x_max - x_min) * torch.rand(n_bg, 1) + x_min
+        
+        # Combine
+        x_0 = torch.cat([x_0_s1, x_0_s2, x_0_bg], dim=0)
+        t_0 = torch.zeros(N_0, 1)
+        X_0 = torch.cat([x_0, t_0], dim=1)
+
+        # SHUFFLE X_0
+        perm = torch.randperm(X_0.size(0))
+        X_0 = X_0[perm].requires_grad_(True)
+
+    return X_f, X_b_left, X_b_right, X_0

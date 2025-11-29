@@ -2,6 +2,9 @@ import numpy as np
 from scipy.integrate import quad
 import matplotlib.pyplot as plt
 
+# TODO: Adjust this file so it is easier to use in other files. Very complicated right now..
+# Should not have hardcoded parameters which must be changed in multiple places in order to work properly.
+
 # --- PARAMETERS ---
 
 WAVE_SPEED = 1.4       # c
@@ -15,10 +18,10 @@ X_CENTER_S1 = 0.5         # x_0
 SIGMA_S1 = 0.2            # sigma
 
 # --- SOURCE 2 ---
-X_CENTER_S2 = 0 
+X_CENTER_S2 = -0.3 
 SIGMA_S2 = 0.2
 
-SOURCES = 1 # Number of sources to include in the initial condition
+SOURCES = 1 # Number of sources to include in the initial condition <<<<<<
 
 # --- PHYSICS & SOLUTION LOGIC (Same as before) ---
 def initial_displacement(x, sources = 1):
