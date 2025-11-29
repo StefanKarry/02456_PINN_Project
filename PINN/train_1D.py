@@ -21,6 +21,8 @@ from lib.dataset.dataset2 import N_b, create_training_data
 from lib.model.PINNs import PINN_Model_2D
 from lib.dataset.exact_1D_grid import *
 
+# TODO : Make the this file more readable, it is very chaos when L-BFGS begins
+
 #### Domain and Wave Params ####
 DOMAIN_START = -1.0
 DOMAIN_END = 1.0
@@ -59,8 +61,6 @@ optimizer = optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-5)
 optimizer_finetune = optim.LBFGS(model.parameters(), lr = 1, max_iter = 5000, max_eval = 5000, history_size = 100, 
                                                      tolerance_grad = 1e-09, tolerance_change = 1.0 * np.finfo(float).eps,
                                                      line_search_fn = "strong_wolfe")
-
-
 
 loss_history = []
 
