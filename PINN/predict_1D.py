@@ -71,41 +71,41 @@ Error_grid = np.abs(U_exact - U_pinn)
 # Error_grid = U_exact - U_pinn
 
 # Result visualisation
-fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 vmin = np.min(U_exact)
 vmax = np.max(U_exact)
 
 # Exact solution
-im1 = axes[0].pcolormesh(X_grid, T_grid, U_exact, cmap='turbo', vmin=vmin, vmax=vmax, shading='auto')
-axes[0].set_title("Exact Solution (Fourier)")
-axes[0].set_xlabel("x")
-axes[0].set_ylabel("t")
-plt.colorbar(im1, ax=axes[0])
+# im1 = axes[0].pcolormesh(X_grid, T_grid, U_exact, cmap='turbo', vmin=vmin, vmax=vmax, shading='auto')
+# axes[0].set_title("Exact Solution (Fourier)")
+# axes[0].set_xlabel("x")
+# axes[0].set_ylabel("t")
+# plt.colorbar(im1, ax=axes[0])
 
 # PINN prediction
-im2 = axes[1].pcolormesh(X_grid, T_grid, U_pinn, cmap='turbo', vmin=vmin, vmax=vmax, shading='auto')
-axes[1].set_title("PINN Prediction")
+im2 = axes[0].pcolormesh(X_grid, T_grid, U_pinn, cmap='turbo', vmin=vmin, vmax=vmax, shading='auto')
+axes[0].set_title("PINN Prediction")
+
+if T_MAX_PLOT > 1.0:
+    axes[0].axhline(y=T_MAX_PLOT - (T_MAX_PLOT - 1.0), color='white', linestyle='--', label='Out of\nTraining\nDomain')
+    axes[0].legend(loc = 'lower left')
+
+axes[0].set_xlabel("Position ($x$)")
+axes[0].set_ylabel("Time ($t$)")
+plt.colorbar(im2, ax=axes[0], label='Displacement $u(x,t)$')
+
+# Error plot
+im3 = axes[1].pcolormesh(X_grid, T_grid, Error_grid, cmap='inferno', shading='auto')
 
 if T_MAX_PLOT > 1.0:
     axes[1].axhline(y=T_MAX_PLOT - (T_MAX_PLOT - 1.0), color='white', linestyle='--', label='Out of\nTraining\nDomain')
     axes[1].legend(loc = 'lower left')
 
-axes[1].set_xlabel("x")
-axes[1].set_ylabel("t")
-plt.colorbar(im2, ax=axes[1])
-
-# Error plot
-im3 = axes[2].pcolormesh(X_grid, T_grid, Error_grid, cmap='inferno', shading='auto')
-
-if T_MAX_PLOT > 1.0:
-    axes[2].axhline(y=T_MAX_PLOT - (T_MAX_PLOT - 1.0), color='white', linestyle='--', label='Out of\nTraining\nDomain')
-    axes[2].legend(loc = 'lower left')
-
-axes[2].set_title("Absolute Error |Exact - PINN|")
-axes[2].set_xlabel("x")
-axes[2].set_ylabel("t")
-plt.colorbar(im3, ax=axes[2])
+axes[1].set_title("Absolute Error |Exact - PINN|")
+axes[1].set_xlabel("Position ($x$)")
+axes[1].set_ylabel("Time ($t$)")
+plt.colorbar(im3, ax=axes[1], label='Absolute Error')
 
 # im4 = axes[3].plot(np.log(loss_history))
 # axes[3].set_title("Training Loss History")

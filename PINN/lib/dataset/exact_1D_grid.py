@@ -11,7 +11,7 @@ WAVE_SPEED = 1.4       # c
 DOMAIN_START = -1.0
 DOMAIN_END = 1.0
 N_TERMS = 50           # Fourier series truncation
-T_MAX_PLOT = 1.0   # Max time for the y-axis
+T_MAX_PLOT = 2.0   # Max time for the y-axis
 
 # --- SOURCE 1 ---     
 X_CENTER_S1 = 0.5         # x_0
@@ -106,13 +106,21 @@ ax.set_xlabel("Position ($x$)")
 ax.set_ylabel("Time ($t$)")
 ax.set_title("Exact Solution $u(x,t)$")
 
+#Plotting the line indicating training domain limit
+if T_MAX_PLOT > 1.0:
+    ax.axhline(y=T_MAX_PLOT - (T_MAX_PLOT - 1.0), color='white', linestyle='--', label='Out of\nTraining\nDomain')
+    ax.legend(loc = 'lower left')
+
+
+
+
 # Remove standard spines to match the 'clean' look of the provided image if desired
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 
 # Add a colorbar to show amplitude
 cbar = plt.colorbar(cplot, ax=ax)
-cbar.set_label("Displacement $u$")
+cbar.set_label("Displacement $u(x,t)$")
 
 plt.tight_layout()
 plt.savefig("exact_solution_1D_heatmap.png", bbox_inches='tight', dpi=300)
