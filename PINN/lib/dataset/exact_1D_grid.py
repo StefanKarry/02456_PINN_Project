@@ -2,6 +2,9 @@ import numpy as np
 from scipy.integrate import quad
 import matplotlib.pyplot as plt
 
+# TODO: Adjust this file so it is easier to use in other files. Very complicated right now..
+# Should not have hardcoded parameters which must be changed in multiple places in order to work properly.
+
 # --- PARAMETERS ---
 
 WAVE_SPEED = 1.4       # c
@@ -11,14 +14,14 @@ N_TERMS = 50           # Fourier series truncation
 T_MAX_PLOT = 1.0   # Max time for the y-axis
 
 # --- SOURCE 1 ---     
-X_CENTER_S1 = 0.5         # x_0
+X_CENTER_S1 = 0.3         # x_0
 SIGMA_S1 = 0.2            # sigma
 
 # --- SOURCE 2 ---
-X_CENTER_S2 = 0 
+X_CENTER_S2 = -0.5 
 SIGMA_S2 = 0.2
 
-SOURCES = 1 # Number of sources to include in the initial condition
+SOURCES = 1 # Number of sources to include in the initial condition <<<<<<
 
 # --- PHYSICS & SOLUTION LOGIC (Same as before) ---
 def initial_displacement(x, sources = 1):
@@ -89,27 +92,27 @@ print("Computing solution grid...")
 U_Grid = get_solution_grid(X_Grid, T_Grid)
 # 2. Create the Plot
 print("Plotting...")
-# fig, ax = plt.subplots(figsize=(8, 6))
+fig, ax = plt.subplots(figsize=(8, 6))
 
-# # pcolormesh creates the heatmap
-# # vmin/vmax center the colormap if needed, or let it scale auto
-# # 'shading="auto"' ensures correct grid alignment
-# cplot = ax.pcolormesh(X_Grid, T_Grid, U_Grid, cmap='viridis', shading='auto')
+# pcolormesh creates the heatmap
+# vmin/vmax center the colormap if needed, or let it scale auto
+# 'shading="auto"' ensures correct grid alignment
+cplot = ax.pcolormesh(X_Grid, T_Grid, U_Grid, cmap='viridis', shading='auto')
 
-# # 3. Style to match your image
-# ax.set_xlim(DOMAIN_START, DOMAIN_END)
-# ax.set_ylim(0, T_MAX_PLOT)
-# ax.set_xlabel("Position ($x$)")
-# ax.set_ylabel("Time ($t$)")
-# ax.set_title("Exact Solution $u(x,t)$ Space-Time Heatmap")
+# 3. Style to match your image
+ax.set_xlim(DOMAIN_START, DOMAIN_END)
+ax.set_ylim(0, T_MAX_PLOT)
+ax.set_xlabel("Position ($x$)")
+ax.set_ylabel("Time ($t$)")
+ax.set_title("Exact Solution $u(x,t)$")
 
-# # Remove standard spines to match the 'clean' look of the provided image if desired
-# ax.spines['top'].set_visible(False)
-# ax.spines['right'].set_visible(False)
+# Remove standard spines to match the 'clean' look of the provided image if desired
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
 
-# # Add a colorbar to show amplitude
-# cbar = plt.colorbar(cplot, ax=ax)
-# cbar.set_label("Displacement $u$")
+# Add a colorbar to show amplitude
+cbar = plt.colorbar(cplot, ax=ax)
+cbar.set_label("Displacement $u$")
 
-# plt.tight_layout()
-# plt.show()
+plt.tight_layout()
+plt.savefig("exact_solution_1D_heatmap.png", dpi=300)
