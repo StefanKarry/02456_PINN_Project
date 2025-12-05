@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 # Our scripts
 from lib.loss.Loss_1D import compute_grad, waveLoss_1D
-from lib.dataset.dataset_1D import N_b, create_training_data
+from lib.dataset.dataset_1D import create_training_data
 from lib.model.PINNs import PINN_Model_1D
 from lib.dataset.exact_1D_grid import *
 

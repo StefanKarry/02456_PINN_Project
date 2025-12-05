@@ -14,12 +14,15 @@ from torchsummary import summary
 import torch.optim as optim
 from time import time
 import matplotlib.pyplot as plt
+import sys
 
 # Our scripts
 from lib.loss.Loss_1D import compute_grad, waveLoss_1D
 from lib.dataset.dataset_1D import create_training_data
 from lib.model.PINNs import PINN_Model_1D
 from lib.dataset.exact_1D_grid import *
+
+nsources = sys.argv[1]
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = PINN_Model_1D().to(device)
@@ -30,10 +33,10 @@ model_dir = os.path.join(current_dir, 'lib/weights')
 
 # If moving between 1 source and 2 source models, change the filename accordingly and go to exact_1D_grid.py and change SOURCES to 1 or 2.
 
-load_path = os.path.join(model_dir, f'{model.__class__.__name__}_1D_1source.pth') #Include _good for the good model
+load_path = os.path.join(model_dir, f'{model.__class__.__name__}_1D_{nsources}source.pth') #Include _good for the good model
 model.load_state_dict(torch.load(load_path, map_location=device))
 
-loss_history = np.load(os.path.join(model_dir, f'{model.__class__.__name__}_1D_loss_history_1source.npy')) # include _good for the good model
+loss_history = np.load(os.path.join(model_dir, f'{model.__class__.__name__}_1D_loss_history_{nsources}source.npy')) # include _good for the good model
 
 #### Domain and Wave Params ####
 DOMAIN_START = -1.0
@@ -49,7 +52,20 @@ X_grid, T_grid = np.meshgrid(x_eval, t_eval)
 
 # Computing exact solution for comparison
 print("Computing Exact Solution...")
-U_exact = get_solution_grid(X_grid, T_grid)
+U_exact = get_solution_grid(X_grid, T_grid, A_COEFFICIENTS=None, config={
+    'DOMAIN_START': DOMAIN_START,
+    'DOMAIN_END': DOMAIN_END,
+    'WAVE_SPEED': WAVE_SPEED,
+    'N_TERMS': N_TERMS,
+    'T_MAX_PLOT': T_MAX_PLOT,
+    'SOURCES': nsources,
+
+    'X_CENTER_S1': DEFAULT_PAR['X_CENTER_S1'],
+    'SIGMA_S1': DEFAULT_PAR['SIGMA_S1'],
+    'X_CENTER_S2': DEFAULT_PAR['X_CENTER_S2'],
+    'SIGMA_S2': DEFAULT_PAR['SIGMA_S2'],
+
+})
 
 # Prediction (should probably be moved to another script and weights saved/loaded)
 print("Predicting with PINN model...")
@@ -113,7 +129,7 @@ plt.colorbar(im3, ax=axes[1], label='Absolute Error')
 # axes[3].grid(True)
 
 plt.tight_layout()
-plt.savefig("PINN_1D_Wave_Equation_Results.png", bbox_inches='tight', dpi=300)
+plt.savefig(f"PINN_1D_Wave_Equation_{nsources}_Results.png", bbox_inches='tight', dpi=300)
 
 fig, axes = plt.subplots(1, 1, figsize=(12, 5))
 im4 = axes.plot(np.log(loss_history))
@@ -122,4 +138,4 @@ axes.set_xlabel("Epoch")
 axes.set_ylabel("log(Loss)")
 axes.grid(True)
 plt.tight_layout()
-plt.savefig("PINN_1D_Wave_Equation_Loss_History.png", bbox_inches='tight', dpi=300)
+plt.savefig(f"PINN_1D_Wave_Equation_Loss_History_{nsources}source.png", bbox_inches='tight', dpi=300)
