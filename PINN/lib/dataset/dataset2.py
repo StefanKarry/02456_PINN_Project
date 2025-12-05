@@ -21,12 +21,10 @@ def create_training_data(x_min: float = None, x_max: float = None, t_min: float 
     - X_0: Initial condition points (x, t=0)
     """
     # Interior Points (PDE)
-    # Random sampling (x, t)
     # x in [-1, 1], t in [0, 1]
     x_f = (x_max - x_min) * torch.rand(N_f, 1) + x_min
     t_f = (t_max - t_min) * torch.rand(N_f, 1) + t_min
 
-    # Combine them into one tensor requiring gradients
     X_f = torch.cat([x_f, t_f], dim=1)
     
     #Sort based on time for causal training
@@ -35,7 +33,6 @@ def create_training_data(x_min: float = None, x_max: float = None, t_min: float 
 
 
     # Boundary Points (Neumann)
-    
     # Left Edge: x = -1
     x_b_left = torch.ones(N_b, 1) * x_min
     t_b_left = (t_max - t_min) * torch.rand(N_b, 1) + t_min
@@ -54,8 +51,7 @@ def create_training_data(x_min: float = None, x_max: float = None, t_min: float 
     sorted_indices_right = torch.argsort(X_b_right[:, 1])
     X_b_right = X_b_right[sorted_indices_right].requires_grad_(True)
 
-    # --- 3. Initial Condition Points ---
-    # t = 0, x is random
+    # Initial condition points
     if (len(centers) < 2) or (sources is None or 1): #By default use single source
         x_0 = (x_max - x_min) * torch.rand(N_0, 1) + x_min
         t_0 = torch.zeros(N_0, 1)
