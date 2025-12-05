@@ -2,6 +2,7 @@ import os
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+import sys
 
 
 # paths 
@@ -47,7 +48,8 @@ with torch.no_grad():
 
 # 2D-plot of time t=1.2
 # ---------------------
-t_plot=float(1.2)
+t = float(sys.argv[1]) if len(sys.argv) > 1 else 1.2
+t_plot=float(t)
 # Find nærmeste tid
 t_idx = np.argmin(np.abs(t_star - t_plot))
 closest_t = t_star[t_idx]
@@ -90,14 +92,15 @@ ax[1].set_title(f"Absolute Error at t={closest_t:.3f}")
 # print(f"Error map saved: {error_map_path}")
 
 #saving combined figure
-combined_path = os.path.join(images_dir, f"u3D_pred_and_error_2D_t{closest_t:.3f}.png")
+combined_path = os.path.join(images_dir, f"u3D_pred_and_error_2D_t{closest_t:.3f}.png") # For hpc
+combined_path = f"u3D_pred_and_error_2D_t{t:.3f}.png" # For local (aka jupyter notebook)
 plt.savefig(combined_path, dpi=300, bbox_inches='tight')
 plt.close()
 print(f"Combined figure saved: {combined_path}")
 
 
 # saving loss history (as log(loss))
-train_hist = np.loadtxt(os.path.join(log_dir, "training_loss.txt"), delimiter=",")
+train_hist = np.loadtxt(os.path.join(log_dir, f"{model.__class__.__name__}training_loss.txt"), delimiter=",")
 loss_hist = train_hist[:,1]
 epochs = train_hist[:,0]
 

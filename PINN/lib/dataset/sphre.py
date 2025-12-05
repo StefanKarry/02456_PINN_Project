@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.polynomial.legendre import leggauss   # Gauss–Legendre nodes/weights
 from scipy.special import lpmv                   # for associated Legendre P_l^m
+import sys
 
 
 def wave1_sphere_exact(XYZ, t, f_handle, g_handle, Lmax, c, R):
@@ -183,7 +184,7 @@ if __name__ == "__main__":
     R    = 1.0
     c    = 1.4
     Lmax = 32
-    t    = 1.1837
+    t    = float(sys.argv[1]) if len(sys.argv) > 1 else 1.2
 
     # Initial conditions
     f_handle = lambda x, y, z: x**2 - y**2
