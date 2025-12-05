@@ -1,5 +1,4 @@
 import torch
-
 def compute_grad(u, x):
     """
     Compute the gradient of u with respect to x.
@@ -13,7 +12,6 @@ def compute_grad(u, x):
                                retain_graph=True,
                                only_inputs=True)[0]
 
-#Markus
 def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b_r: torch.Tensor, x_b_l: torch.Tensor, t_b: torch.Tensor, x_0: torch.Tensor, t_0: torch.Tensor, u_0_target: torch.Tensor, c=1.4, beta_f=1.0, beta_ic=1.0, beta_b=1.0):
     """
     Compute the Wave Loss for 2D wave equation.
@@ -31,7 +29,7 @@ def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b_r: torch.Tensor
         float: The computed Wave Loss.
     """ 
 
-    #Checking if the the input tensors require gradients for autograd (crucial)
+    #Checking if the the input tensors require gradients for autograd
     assert x_f.requires_grad, "x_f must require gradients"
     assert t_f.requires_grad, "t_f must require gradients"
     assert x_b_r.requires_grad, "x_b_r must require gradients"
@@ -50,7 +48,7 @@ def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b_r: torch.Tensor
     u_tt = compute_grad(u_t, t_f)
     u_xx = compute_grad(u_x, x_f)
 
-    # By recommendation of Gemini, add time weighting to the collocation loss
+    # By recommendation of Gemini, add time weighting to the collocation loss. This gives higher weightings to later points where it intially seemed uncertain.
     time_weight = 1.0 + 3.0 * t_f
 
     res = u_tt - c**2 * u_xx
@@ -58,12 +56,12 @@ def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b_r: torch.Tensor
 
     # Prediction at left and right edges
     # left edge (x = -1)
-    u_pred_left = model(x_b_l, t_b) # Make sure you pass the t associated with x_b_l
+    u_pred_left = model(x_b_l, t_b)
     u_x_left = compute_grad(u_pred_left, x_b_l)[:, 0:1] # Grad w.r.t x
     loss_b_left = torch.mean(u_x_left**2)
 
     # right edge (x = 1)
-    u_pred_right = model(x_b_r, t_b) # Make sure you pass the t associated with x_b_r
+    u_pred_right = model(x_b_r, t_b)
     u_x_right = compute_grad(u_pred_right, x_b_r)[:, 0:1] # Grad w.r.t x
     loss_b_right = torch.mean(u_x_right**2)
 
@@ -82,61 +80,3 @@ def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b_r: torch.Tensor
 
     # Total loss
     return beta_f*loss_F + beta_ic*loss_IC + beta_b*loss_B
-
-
-
-
-def wave_square_loss(prediction, target, c=1.4, w_d=1.0, w_ic=1.0, w_bc=1.0):
-    """
-    Compute the Wave Square Loss between prediction and target.
-
-    Args:
-        prediction (torch.Tensor): The predicted values.
-        target (torch.Tensor): The ground truth values.
-        c (float): Wave speed constant.
-        w_d (float): Weight for the domain loss.
-        w_ic (float): Weight for the initial condition loss.
-        w_bc (float): Weight for the boundary condition loss.
-
-    Returns:
-        float: The computed Wave Square Loss.
-    """
-    x = prediction[:, 0]
-    t = prediction[:, 1]
-    # Compute the wave square loss
-    domain_loss = torch.mean((torch.autograd.grad(torch.autograd.grad(prediction, t), t)- 
-                             c**2*torch.autograd.grad(torch.autograd.grad(prediction, x), x))**2)
-    IC_loss = torch.mean((x[0] - target[0])**2+
-                         (torch.autograd.grad(x[0], t))**2)
-    boundary_loss = torch.mean(torch.autograd.grad(prediction, x)**2)
-
-    return w_d * domain_loss + w_ic * IC_loss + w_bc * boundary_loss
-
-def wave_sphere_loss(prediction, target, c=1.4, w_d=1.0, w_ic=1.0, w_bc=1.0):
-    """
-    Compute the Wave Sphere Loss between prediction and target.
-
-    Args:
-        prediction (torch.Tensor): The predicted values.
-        target (torch.Tensor): The ground truth values.
-        c (float): Wave speed constant.
-        w_d (float): Weight for the domain loss.
-        w_ic (float): Weight for the initial condition loss.
-        w_bc (float): Weight for the boundary condition loss.
-
-    Returns:
-        float: The computed Wave Sphere Loss.
-    """
-    R = prediction[:, 0]
-    theta = prediction[:, 1]
-    phi = prediction[:, 2]
-    t = prediction[:, 3]
-    
-    # Compute the wave sphere loss
-    domain_loss = torch.mean((torch.autograd.grad(torch.autograd.grad(prediction, z), z) -
-                             c**2*torch.autograd.grad(torch.autograd.grad(prediction, x), x))**2)
-    IC_loss = torch.mean((prediction[:, 0] - target[:,0])**2+
-                         (torch.autograd.grad(prediction, z)[:,0])**2)
-    boundary_loss = torch.mean(torch.autograd.grad(prediction, x)**2)
-
-    return w_d * domain_loss + w_ic * IC_loss + w_bc * boundary_loss
