@@ -59,14 +59,18 @@ class PINNModel_Sphere(nn.Module):
     '''
     def __init__(self):
         super(PINNModel_Sphere, self).__init__()
-        self.layer1 = nn.Linear(3, 100) # input layer containing theta, phi, t
-        self.layer2 = nn.Linear(100, 100)   
-        self.layer3 = nn.Linear(100, 1) # output layer containing u(theta, phi, t)
+        self.layer1 = nn.Linear(3, 64) # input layer containing theta, phi, t
+        self.layer2 = nn.Linear(64, 128)   
+        self.layer3 = nn.Linear(128, 50) 
+        self.layer4 = nn.Linear(50, 25)
+        self.layer5 = nn.Linear(25, 1) # output layer containing u(theta, phi, t)
         
     def forward(self, x):
-        x = torch.relu(self.layer1(x))
-        x = torch.relu(self.layer2(x))
-        x = self.layer3(x)
+        x = torch.tanh(self.layer1(x))
+        x = torch.sin(self.layer2(x))
+        x = torch.tanh(self.layer3(x))
+        x = torch.sin(self.layer4(x))
+        x = self.layer5(x)
         return x
 
 class PINN_Model_2D(nn.Module):
