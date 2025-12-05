@@ -21,3 +21,5 @@ def wave_square_loss(prediction, target, c=1.4):
                          (torch.autograd.grad(prediction, t)[:,0])**2)
     boundary_loss = torch.mean(torch.autograd.grad(prediction, x)**2)
     return domain_loss + IC_loss + boundary_loss
+
+# fuck markus
