@@ -75,7 +75,7 @@ ax[0].set_title(f"PINN Prediction at t={closest_t:.3f}")
 # print(f"Figur gemt: {save_path}")
 
 # creating error map
-U_real = np.load(f'wave_sphere_exact_1.184.npz')['U']
+U_real = np.load(f'wave_sphere_exact_{t:.3f}.npz')['U']
 error_map = np.abs(U_real - u_slice.reshape(N_theta, N_phi))
 
 im2 = ax[1].pcolormesh(phi_slice.reshape(N_theta, N_phi), theta_slice.reshape(N_theta, N_phi),
