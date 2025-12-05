@@ -16,6 +16,33 @@ from torchsummary import summary
 import torch.optim as optim
 from time import time
 
+class PINNModel_Plane(nn.Module):
+    '''
+    A Physics Informed Neural Network model for simulating wave propagation on a 2D plane.
+    The model takes as input the spatial coordinates (x, y) and time t, and outputs the wave displacement u.
+    It practically solves an IVP, such that given some initial conditions (x, y) at t=0, it can predict the wave propagation over time.
+    
+    :Parameters:
+    - x: x-coordinate in 2D space
+    - y: y-coordinate in 2D space
+    - t: Time variable
+
+    :Output:
+    - u: Wave displacement at the given (x, y, t)
+    '''
+
+    def __init__(self):
+        super(PINNModel_Plane, self).__init__()
+        self.layer1 = nn.Linear(3, 50) # input layer containing x, y, t
+        self.layer2 = nn.Linear(50, 50)
+        self.layer3 = nn.Linear(50, 1) # output layer containing u(x, y, t)
+        
+    def forward(self, x):
+        x = torch.relu(self.layer1(x))  
+        x = torch.relu(self.layer2(x))
+        x = self.layer3(x)
+        return x
+
 class PINNModel_Sphere(nn.Module):
     '''
     A Physics Informed Neural Network model for simulating wave propagation on a spherical surface.
@@ -32,19 +59,23 @@ class PINNModel_Sphere(nn.Module):
     '''
     def __init__(self):
         super(PINNModel_Sphere, self).__init__()
-        self.layer1 = nn.Linear(3, 100) # input layer containing theta, phi, t
-        self.layer2 = nn.Linear(100, 100)   
-        self.layer3 = nn.Linear(100, 1) # output layer containing u(theta, phi, t)
+        self.layer1 = nn.Linear(3, 64) # input layer containing theta, phi, t
+        self.layer2 = nn.Linear(64, 128)   
+        self.layer3 = nn.Linear(128, 50) 
+        self.layer4 = nn.Linear(50, 25)
+        self.layer5 = nn.Linear(25, 1) # output layer containing u(theta, phi, t)
         
     def forward(self, x):
-        x = torch.relu(self.layer1(x))
-        x = torch.relu(self.layer2(x))
-        x = self.layer3(x)
+        x = torch.tanh(self.layer1(x))
+        x = torch.sin(self.layer2(x))
+        x = torch.tanh(self.layer3(x))
+        x = torch.sin(self.layer4(x))
+        x = self.layer5(x)
         return x
 
-class PINN_Model_1D(nn.Module):
+class PINN_Model_2D(nn.Module):
     def __init__(self):
-        super(PINN_Model_1D, self).__init__()
+        super(PINN_Model_2D, self).__init__()
         self.layer1 = nn.Linear(2, 64) # input layer containing x, t
         self.layer2 = nn.Linear(64, 64)
         self.layer3 = nn.Linear(64, 64) 
