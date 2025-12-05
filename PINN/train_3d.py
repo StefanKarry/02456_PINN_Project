@@ -14,7 +14,7 @@ from torchsummary import summary
 import torch.optim as optim
 from time import time
 
-from lib.loss.Loss_ninna import *
+from lib.loss.Loss_1D import *
 #from lib.dataset.dataset1 import *
 #from Loss_2Dsquare import *
 from lib.loss.Loss_sphere import *
@@ -51,9 +51,9 @@ optimizer_finetune = optim.LBFGS(model.parameters(), lr = 1, max_iter = 5000, ma
 #folder for logs 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_dir = '/zhome/14/3/167963/02456_PINN_Project/PINN/lib/weights'
-log_dir = os.path.join(current_dir, 'lib/logs')
+log_dir = os.path.join(current_dir, 'lib/weights')
 os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, 'training_loss.txt')
+log_file = os.path.join(log_dir, f'{model.__class__.__name__}training_loss.txt')
 
 # Training parameters
 epochs = 30000

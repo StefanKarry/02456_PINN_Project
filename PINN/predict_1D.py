@@ -22,7 +22,7 @@ from lib.dataset.dataset_1D import create_training_data
 from lib.model.PINNs import PINN_Model_1D
 from lib.dataset.exact_1D_grid import *
 
-nsources = sys.argv[1]
+nsources = int(sys.argv[1])
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = PINN_Model_1D().to(device)

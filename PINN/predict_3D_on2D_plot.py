@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 
 
 # paths 
-working_dir = os.path.dirname(os.path.abspath(__file__))
-weights_path = '/zhome/14/3/167963/02456_PINN_Project/PINN/lib/weights/PINNModel_Sphere.pth'
+working_dir = os.getcwd()
+weights_path = 'lib/weights/PINNModel_Sphere.pth'
 results_dir  = os.path.join(working_dir, "lib/results")
 os.makedirs(results_dir, exist_ok=True)
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.getcwd()
 log_dir = os.path.join(current_dir, 'lib/logs')
 
 images_dir = os.path.join(working_dir, "images")
