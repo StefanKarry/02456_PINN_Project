@@ -98,7 +98,7 @@ for epoch in range(epochs):
                      t_0.to(device), u_0_target.to(device),
                      c=WAVE_SPEED, beta_f=w_F, beta_ic=w_IC, beta_b=w_B)
     loss.backward()
-    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0) #Handles exploding gradients
     optimizer.step()
 
     epoch_loss = loss.item()
@@ -156,13 +156,13 @@ if isinstance(optimizer, optim.LBFGS):
     loss_history.append(epoch_loss)
     elapsed_time += time() - start_time
 
-    if (epoch+1) % 100 == 0 or epoch == 0:
-        print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss:.4f}, Time: {elapsed_time:.2f}s")
+    print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss:.9f}, Time: {elapsed_time:.2f}s")
 
 
 # Saving the weights
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_dir = os.path.join(current_dir, 'lib/weights')
+
 if not os.path.exists(model_dir):
     os.makedirs(model_dir)
 save_path = os.path.join(model_dir, f'{model.__class__.__name__}_1D_test.pth')

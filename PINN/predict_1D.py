@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 # Our scripts
 from lib.loss.Loss_ninna import compute_grad, waveLoss_2D
-from lib.dataset.dataset2 import N_b, create_training_data
+from lib.dataset.dataset2 import create_training_data
 from lib.model.PINNs import PINN_Model_2D
 from lib.dataset.exact_1D_grid import *
 
@@ -31,10 +31,10 @@ model_dir = os.path.join(current_dir, 'lib/weights')
 
 # If moving between 1 source and 2 source models, change the filename accordingly and go to exact_1D_grid.py and change SOURCES to 1 or 2.
 
-load_path = os.path.join(model_dir, f'{model.__class__.__name__}_1D_1source.pth') #Include _good for the good model
+load_path = os.path.join(model_dir, f'{model.__class__.__name__}_1D_2source.pth') #Include _good for the good model
 model.load_state_dict(torch.load(load_path, map_location=device))
 
-loss_history = np.load(os.path.join(model_dir, f'{model.__class__.__name__}_1D_loss_history_1source.npy')) # include _good for the good model
+loss_history = np.load(os.path.join(model_dir, f'{model.__class__.__name__}_1D_loss_history_2source.npy')) # include _good for the good model
 
 #### Domain and Wave Params ####
 DOMAIN_START = -1.0
@@ -77,19 +77,19 @@ vmin = np.min(U_exact)
 vmax = np.max(U_exact)
 
 # Exact solution
-im1 = axes[0].pcolormesh(X_grid, T_grid, U_exact, cmap='seismic', vmin=vmin, vmax=vmax, shading='auto')
+im1 = axes[0].pcolormesh(X_grid, T_grid, U_exact, cmap='viridis', vmin=vmin, vmax=vmax, shading='auto')
 axes[0].set_title("Exact Solution (Fourier)")
 axes[0].set_xlabel("x")
 axes[0].set_ylabel("t")
 plt.colorbar(im1, ax=axes[0])
 
 # PINN prediction
-im2 = axes[1].pcolormesh(X_grid, T_grid, U_pinn, cmap='seismic', vmin=vmin, vmax=vmax, shading='auto')
+im2 = axes[1].pcolormesh(X_grid, T_grid, U_pinn, cmap='viridis', vmin=vmin, vmax=vmax, shading='auto')
 axes[1].set_title("PINN Prediction")
 
 if T_MAX_PLOT > 1.0:
-    axes[1].axhline(y=T_MAX_PLOT - (T_MAX_PLOT - 1.0), color='white', linestyle='--', label='Out of Training Domain')
-    axes[1].legend()
+    axes[1].axhline(y=T_MAX_PLOT - (T_MAX_PLOT - 1.0), color='white', linestyle='--', label='Out of\nTraining\nDomain')
+    axes[1].legend(loc = 'lower left')
 
 axes[1].set_xlabel("x")
 axes[1].set_ylabel("t")
@@ -99,8 +99,8 @@ plt.colorbar(im2, ax=axes[1])
 im3 = axes[2].pcolormesh(X_grid, T_grid, Error_grid, cmap='inferno', shading='auto')
 
 if T_MAX_PLOT > 1.0:
-    axes[2].axhline(y=T_MAX_PLOT - (T_MAX_PLOT - 1.0), color='white', linestyle='--', label='Out of Training Domain')
-    axes[2].legend()
+    axes[2].axhline(y=T_MAX_PLOT - (T_MAX_PLOT - 1.0), color='white', linestyle='--', label='Out of\nTraining\nDomain')
+    axes[2].legend(loc = 'lower left')
 
 axes[2].set_title("Absolute Error |Exact - PINN|")
 axes[2].set_xlabel("x")
@@ -116,3 +116,11 @@ axes[3].grid(True)
 plt.tight_layout()
 plt.savefig("PINN_1D_Wave_Equation_Results.png", dpi=300)
 
+fig, axes = plt.subplots(1, 1, figsize=(12, 5))
+im4 = axes.plot(np.log(loss_history))
+axes.set_title("Training Loss History")
+axes.set_xlabel("Epoch")
+axes.set_ylabel("log(Loss)")
+axes.grid(True)
+plt.tight_layout()
+plt.savefig("PINN_1D_Wave_Equation_Loss_History.png", dpi=300)
