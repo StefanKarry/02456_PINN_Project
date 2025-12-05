@@ -14,11 +14,11 @@ N_TERMS = 50           # Fourier series truncation
 T_MAX_PLOT = 1.0   # Max time for the y-axis
 
 # --- SOURCE 1 ---     
-X_CENTER_S1 = 0.3         # x_0
+X_CENTER_S1 = 0.5         # x_0
 SIGMA_S1 = 0.2            # sigma
 
 # --- SOURCE 2 ---
-X_CENTER_S2 = -0.5 
+X_CENTER_S2 = -0.3
 SIGMA_S2 = 0.2
 
 SOURCES = 1 # Number of sources to include in the initial condition <<<<<<
@@ -97,7 +97,7 @@ fig, ax = plt.subplots(figsize=(8, 6))
 # pcolormesh creates the heatmap
 # vmin/vmax center the colormap if needed, or let it scale auto
 # 'shading="auto"' ensures correct grid alignment
-cplot = ax.pcolormesh(X_Grid, T_Grid, U_Grid, cmap='viridis', shading='auto')
+cplot = ax.pcolormesh(X_Grid, T_Grid, U_Grid, cmap='turbo', shading='auto')
 
 # 3. Style to match your image
 ax.set_xlim(DOMAIN_START, DOMAIN_END)
@@ -115,4 +115,4 @@ cbar = plt.colorbar(cplot, ax=ax)
 cbar.set_label("Displacement $u$")
 
 plt.tight_layout()
-plt.savefig("exact_solution_1D_heatmap.png", dpi=300)
+plt.savefig("exact_solution_1D_heatmap.png", bbox_inches='tight', dpi=300)

@@ -31,15 +31,15 @@ model_dir = os.path.join(current_dir, 'lib/weights')
 
 # If moving between 1 source and 2 source models, change the filename accordingly and go to exact_1D_grid.py and change SOURCES to 1 or 2.
 
-load_path = os.path.join(model_dir, f'{model.__class__.__name__}_1D_2source.pth') #Include _good for the good model
+load_path = os.path.join(model_dir, f'{model.__class__.__name__}_1D_1source.pth') #Include _good for the good model
 model.load_state_dict(torch.load(load_path, map_location=device))
 
-loss_history = np.load(os.path.join(model_dir, f'{model.__class__.__name__}_1D_loss_history_2source.npy')) # include _good for the good model
+loss_history = np.load(os.path.join(model_dir, f'{model.__class__.__name__}_1D_loss_history_1source.npy')) # include _good for the good model
 
 #### Domain and Wave Params ####
 DOMAIN_START = -1.0
 DOMAIN_END = 1.0
-T_MAX_PLOT = 1.0
+T_MAX_PLOT = 2.0
 WAVE_SPEED = 1.4
 N_TERMS = 50  # Number of Fourier terms to use
 
@@ -71,20 +71,20 @@ Error_grid = np.abs(U_exact - U_pinn)
 # Error_grid = U_exact - U_pinn
 
 # Result visualisation
-fig, axes = plt.subplots(1, 4, figsize=(18, 5))
+fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
 vmin = np.min(U_exact)
 vmax = np.max(U_exact)
 
 # Exact solution
-im1 = axes[0].pcolormesh(X_grid, T_grid, U_exact, cmap='viridis', vmin=vmin, vmax=vmax, shading='auto')
+im1 = axes[0].pcolormesh(X_grid, T_grid, U_exact, cmap='turbo', vmin=vmin, vmax=vmax, shading='auto')
 axes[0].set_title("Exact Solution (Fourier)")
 axes[0].set_xlabel("x")
 axes[0].set_ylabel("t")
 plt.colorbar(im1, ax=axes[0])
 
 # PINN prediction
-im2 = axes[1].pcolormesh(X_grid, T_grid, U_pinn, cmap='viridis', vmin=vmin, vmax=vmax, shading='auto')
+im2 = axes[1].pcolormesh(X_grid, T_grid, U_pinn, cmap='turbo', vmin=vmin, vmax=vmax, shading='auto')
 axes[1].set_title("PINN Prediction")
 
 if T_MAX_PLOT > 1.0:
@@ -107,14 +107,14 @@ axes[2].set_xlabel("x")
 axes[2].set_ylabel("t")
 plt.colorbar(im3, ax=axes[2])
 
-im4 = axes[3].plot(np.log(loss_history))
-axes[3].set_title("Training Loss History")
-axes[3].set_xlabel("Epoch")
-axes[3].set_ylabel("log(Loss)")
-axes[3].grid(True)
+# im4 = axes[3].plot(np.log(loss_history))
+# axes[3].set_title("Training Loss History")
+# axes[3].set_xlabel("Epoch")
+# axes[3].set_ylabel("log(Loss)")
+# axes[3].grid(True)
 
 plt.tight_layout()
-plt.savefig("PINN_1D_Wave_Equation_Results.png", dpi=300)
+plt.savefig("PINN_1D_Wave_Equation_Results.png", bbox_inches='tight', dpi=300)
 
 fig, axes = plt.subplots(1, 1, figsize=(12, 5))
 im4 = axes.plot(np.log(loss_history))
@@ -123,4 +123,4 @@ axes.set_xlabel("Epoch")
 axes.set_ylabel("log(Loss)")
 axes.grid(True)
 plt.tight_layout()
-plt.savefig("PINN_1D_Wave_Equation_Loss_History.png", dpi=300)
+plt.savefig("PINN_1D_Wave_Equation_Loss_History.png", bbox_inches='tight', dpi=300)
