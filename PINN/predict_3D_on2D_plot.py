@@ -46,7 +46,7 @@ with torch.no_grad():
 
 # 2D-plot of time t=1
 #t_plot = float(input(f"Vælg tid t ∈ [{0.9}, {1.1}]: "))
-t_plot=float(0.7)
+t_plot=float(1.2)
 # Find nærmeste tid
 t_idx = np.argmin(np.abs(t_star - t_plot))
 closest_t = t_star[t_idx]
@@ -74,11 +74,11 @@ ax[0].set_title(f"PINN Prediction at t={closest_t:.3f}")
 # print(f"Figur gemt: {save_path}")
 
 # Creating error map
-U_real = np.load(f'wave_sphere_exact_0.694.npz')['U']
+U_real = np.load(f'wave_sphere_exact_1.184.npz')['U']
 error_map = np.abs(U_real - u_slice.reshape(N_theta, N_phi))
 
 im2 = ax[1].pcolormesh(phi_slice.reshape(N_theta, N_phi), theta_slice.reshape(N_theta, N_phi),
-                       error_map, cmap="turbo", shading='auto')
+                       error_map, cmap="inferno", shading='auto')
 plt.colorbar(im2, ax=ax[1], label="Absolute Error")
 ax[1].set_xlabel("$\\phi$")
 ax[1].set_ylabel("$\\theta$")

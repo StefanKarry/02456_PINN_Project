@@ -191,7 +191,7 @@ if __name__ == "__main__":
     R    = 1.0
     c    = 1.4
     Lmax = 32
-    t    = 0.6939
+    t    = 1.1837
 
     # Initial conditions
     f_handle = lambda x, y, z: x**2 - y**2
