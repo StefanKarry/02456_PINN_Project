@@ -42,9 +42,9 @@ class PINNModel_Sphere(nn.Module):
         x = self.layer3(x)
         return x
 
-class PINN_Model_2D(nn.Module):
+class PINN_Model_1D(nn.Module):
     def __init__(self):
-        super(PINN_Model_2D, self).__init__()
+        super(PINN_Model_1D, self).__init__()
         self.layer1 = nn.Linear(2, 64) # input layer containing x, t
         self.layer2 = nn.Linear(64, 64)
         self.layer3 = nn.Linear(64, 64) 

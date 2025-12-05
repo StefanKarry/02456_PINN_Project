@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # Our scripts
 from lib.loss.Loss_1D import compute_grad, waveLoss_1D
 from lib.dataset.dataset_1D import N_b, create_training_data
-from lib.model.PINNs import PINN_Model_2D
+from lib.model.PINNs import PINN_Model_1D
 from lib.dataset.exact_1D_grid import *
 
 #### Domain and Wave Params ####
@@ -50,8 +50,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using device:', device)
 epochs = 30_000
 
-model = PINN_Model_2D().to(device)
-criterion = waveLoss_2D # Use the custom loss function 
+model = PINN_Model_1D().to(device)
+criterion = waveLoss_1D # Use the custom loss function 
 optimizer = optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-5)
 
 # https://docs.pytorch.org/docs/stable/generated/torch.optim.LBFGS.html#torch.optim.LBFGS
