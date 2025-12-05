@@ -12,9 +12,9 @@ def compute_grad(u, x):
                                retain_graph=True,
                                only_inputs=True)[0]
 
-def waveLoss_2D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b_r: torch.Tensor, x_b_l: torch.Tensor, t_b: torch.Tensor, x_0: torch.Tensor, t_0: torch.Tensor, u_0_target: torch.Tensor, c=1.4, beta_f=1.0, beta_ic=1.0, beta_b=1.0):
+def waveLoss_1D(model, x_f: torch.Tensor, t_f: torch.Tensor, x_b_r: torch.Tensor, x_b_l: torch.Tensor, t_b: torch.Tensor, x_0: torch.Tensor, t_0: torch.Tensor, u_0_target: torch.Tensor, c=1.4, beta_f=1.0, beta_ic=1.0, beta_b=1.0):
     """
-    Compute the Wave Loss for 2D wave equation.
+    Compute the Wave Loss for 1D wave equation.
 
     Args:
         model (torch.nn.Module): The neural network model.

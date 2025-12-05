@@ -16,12 +16,10 @@ from time import time
 import matplotlib.pyplot as plt
 
 # Our scripts
-from lib.loss.Loss_ninna import compute_grad, waveLoss_2D
-from lib.dataset.dataset2 import N_b, create_training_data
+from lib.loss.Loss_1D import compute_grad, waveLoss_1D
+from lib.dataset.dataset_1D import N_b, create_training_data
 from lib.model.PINNs import PINN_Model_2D
 from lib.dataset.exact_1D_grid import *
-
-# TODO : Make the this file more readable, it is very chaos when L-BFGS begins
 
 #### Domain and Wave Params ####
 DOMAIN_START = -1.0

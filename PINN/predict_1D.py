@@ -16,14 +16,13 @@ from time import time
 import matplotlib.pyplot as plt
 
 # Our scripts
-from lib.loss.Loss_ninna import compute_grad, waveLoss_2D
-from lib.dataset.dataset2 import create_training_data
-from lib.model.PINNs import PINN_Model_2D
+from lib.loss.Loss_1D import compute_grad, waveLoss_2D
+from lib.dataset.dataset_1D import create_training_data
+from lib.model.PINNs import PINN_Model_1D
 from lib.dataset.exact_1D_grid import *
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-# model = FourierPINN(sigma = 3.0).to(device)
-model = PINN_Model_2D().to(device)
+model = PINN_Model_1D().to(device)
 
 # Load trained model parameters and loss history
 current_dir = os.path.dirname(os.path.abspath(__file__)) 
