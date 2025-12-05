@@ -1,6 +1,8 @@
 from turtle import width
 import torch
 import numpy as np
+
+
 def create_training_data(x_min: float = None, x_max: float = None, t_min: float = None, t_max: float = None, N_f: float = None, N_b: float = None, N_0: float = None, sources = None, centers: list = None, sigma = None):
     """
     Create training data for the PINN model solving the 1D wave equation.
