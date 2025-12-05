@@ -1,35 +1,25 @@
 import numpy as np
 from numpy.polynomial.legendre import leggauss   # Gauss–Legendre nodes/weights
-from scipy.special import lpmv                   # associated Legendre P_l^m
+from scipy.special import lpmv                   # for associated Legendre P_l^m
 
 
 def wave1_sphere_exact(XYZ, t, f_handle, g_handle, Lmax, c, R):
     """
-    Exact spectral solution of u_tt = c^2 Δ_{S^2_R} u on the sphere.
-
-    Parameters
+    Exact 'spectral' solution of u_tt = c^2 Δ_{S^2_R} u on the sphere
     ----------
-    XYZ : (N, 3) array
-        Cartesian coordinates of query points on the sphere of radius R.
-    t : float
-        Time at which to evaluate the solution.
-    f_handle : callable
-        f_handle(x, y, z) -> initial displacement on the sphere.
-    g_handle : callable
-        g_handle(x, y, z) -> initial velocity on the sphere.
-    Lmax : int
-        Maximum spherical–harmonic degree (bandlimit / resolution).
-    c : float
-        Wave speed along the surface.
-    R : float
-        Sphere radius.
+    XYZ : (N, 3) array. Cartesian coordinates of points on the sphere of radius R.
+    t : float. Time to evaluate the solution.
+    f_handle : callable. f_handle(x, y, z) -> initial displacement on the sphere.
+    g_handle : callable. g_handle(x, y, z) -> initial velocity on the sphere.
+    Lmax : int. Maximum spherical–harmonic degree (bandlimit / resolution).
+    c : float. Wave speed along the surface.
+    R : float. Sphere radius.
 
-    Returns
-    -------
-    u : (N,) ndarray (real)
-        Solution u(XYZ_i, t).
+    returns u : (N,) ndarray (real). Solution u(XYZ_i, t).
     """
-    # ------------------ quadrature grid ------------------
+    
+    # quadrature grid 
+    # ------------------
     Ntheta = Lmax + 1          # exact for bandlimit Lmax in μ
     Nphi   = 2 * Lmax + 1      # exact for bandlimit Lmax in φ
 
@@ -47,7 +37,8 @@ def wave1_sphere_exact(XYZ, t, f_handle, g_handle, Lmax, c, R):
     fq = f_handle(XYZq[:, 0], XYZq[:, 1], XYZq[:, 2]).reshape(Ntheta, Nphi)
     gq = g_handle(XYZq[:, 0], XYZq[:, 1], XYZq[:, 2]).reshape(Ntheta, Nphi)
 
-    # ------------------ forward SHT: compute f_lm, g_lm ------------------
+    # forward SHT: compute f_lm, g_lm 
+    # --------------------------------
     dphi = 2.0 * np.pi / Nphi
 
     # m indices -Lmax,...,Lmax
@@ -88,7 +79,8 @@ def wave1_sphere_exact(XYZ, t, f_handle, g_handle, Lmax, c, R):
                 flm[ell, col_neg] = (-1)**m * np.conj(flm_pos)
                 glm[ell, col_neg] = (-1)**m * np.conj(glm_pos)
 
-    # ------------------ exact modal time evolution ------------------
+    #exact modal time evolution 
+    #--------------------------
     ulm = np.zeros_like(flm, dtype=complex)
     for ell in range(Lmax + 1):
         omega = (c / R) * np.sqrt(ell * (ell + 1.0))
@@ -98,7 +90,8 @@ def wave1_sphere_exact(XYZ, t, f_handle, g_handle, Lmax, c, R):
             ulm[ell, :] = (flm[ell, :] * np.cos(omega * t) +
                            (glm[ell, :] / omega) * np.sin(omega * t))
 
-    # ------------------ synthesize u at requested XYZ nodes ------------------
+    #synthesize u at requested XYZ nodes 
+    #-----------------------------------
     XYZ = enforce_radius(XYZ, R)      # project to radius R
     x, y, z = XYZ[:, 0], XYZ[:, 1], XYZ[:, 2]
     theta_pts, phi_pts = cart2sph_angles(x, y, z)
@@ -133,8 +126,7 @@ def wave1_sphere_exact(XYZ, t, f_handle, g_handle, Lmax, c, R):
     return u.real
 
 
-# ======================= helpers =======================
-
+#helper functions
 def gausslegendre(n):
     """
     Gauss–Legendre nodes μ∈[-1,1] and weights (n-point).
@@ -185,7 +177,7 @@ def enforce_radius(XYZ, R):
     return XYZ * scale[:, None]
 
 
-# ======================= example usage =======================
+#example usage
 
 if __name__ == "__main__":
     R    = 1.0
@@ -215,7 +207,7 @@ if __name__ == "__main__":
 
 
 
-    # Simple visualization (matplotlib)
+    # visualization 
     import matplotlib.pyplot as plt
     plt.figure()
     im = plt.imshow(U.real, extent=[phi[0], phi[-1], theta[0], theta[-1]],
