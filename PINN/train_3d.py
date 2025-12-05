@@ -23,13 +23,13 @@ from lib.model.PINNs import *
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
-### Data set ####
+#Data set 
 N=[10000,1000]
 X_f, X_ic = WaveDataset(N, t_min=0.0, t_max=1.0)
 X_f = X_f.to(device)
 X_ic = X_ic.to(device)
 
-#GPU memory is pretty good and we don't feel like training in batches for this PINN 
+#GPU memory is pretty good and we don't feel like training in batches for this PINN but otherwise we would use the DataLoader package:
 #batch_size = 8
 #trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 
@@ -108,7 +108,7 @@ with open(log_file, 'w') as f:
     f.write(f"{epoch+1},{epoch_loss},{elapsed_time:.2f}\n")
     
 
-#### Save model parameters ####
+#saving parameters (actuaylly overwriting the previous to save space)
 save_path = os.path.join(model_dir, "PINNModel_Sphere.pth")
 
 torch.save(model.state_dict(), save_path)
